@@ -1,32 +1,20 @@
 (function(win, $) {
   'use strict';
 
-  function RedCircle() {}
-
-  RedCircle.prototype.create = function() {
+  var RedCircle = function() {
     this.item = $('<div class="circle -red"></div>');
-
-    return this;
   };
-
-  function BlueCircle() {}
-
-  BlueCircle.prototype.create = function() {
+  var BlueCircle = function() {
     this.item = $('<div class="circle -blue"></div>');
-
-    return this;
   };
 
-  // Abstract Factory
+  // Factory
   var CircleFactory = function() {
-    this.types = {};
-    this.create = function(type) {
-      return new this.types[type]().create();
-    };
-
-    this.register = function(type, cls) {
-      if (cls.prototype.create) {
-        this.types[type] = cls;
+    this.create = function(color) {
+      if (color === "red") {
+        return new RedCircle();
+      } else {
+        return new BlueCircle();
       }
     };
   };
@@ -40,16 +28,13 @@
           _state = $('body'),
           _circleFactory = new CircleFactory();
 
-      _circleFactory.register('red', RedCircle);
-      _circleFactory.register('blue', BlueCircle);
-
       function _position(circle, left, top) {
         circle.css('left', left);
         circle.css('top', top);
       }
 
-      function create(left, top, type) {
-        var circle = _circleFactory.create(type).item;
+      function create(left, top, color) {
+        var circle = _circleFactory.create(color).item;
         _position(circle, left, top);
 
         return circle;
