@@ -1,31 +1,59 @@
 (function(win, $) {
   'use strict';
 
-  function RedCircle() {}
+  // Builder
+  function Circle() {
+    this.item = $('<div class="circle" style="background: red;"></div>');
+  }
 
-  RedCircle.prototype.create = function() {
-    this.item = $('<div class="circle -red"></div>');
-
-    return this;
+  Circle.prototype.get = function() {
+    return this.item;
   };
 
-  function BlueCircle() {}
+  Circle.prototype.color = function(color) {
+    $(this.item).css('background', color);
+  };
 
-  BlueCircle.prototype.create = function() {
-    this.item = $('<div class="circle -blue"></div>');
+  Circle.prototype.move = function(left, top) {
+    this.item.css('left', left);
+    this.item.css('top', top);
+  };
 
-    return this;
+  function RedCircleBuilder() {
+    this.item = new Circle();
+    this.init();
+  }
+
+  RedCircleBuilder.prototype.init = function() {
+    // nothing
+  };
+
+  RedCircleBuilder.prototype.get = function() {
+    return this.item;
+  };
+
+  function BlueCircleBuilder() {
+    this.item = new Circle();
+    this.init();
+  }
+
+  BlueCircleBuilder.prototype.init= function() {
+    this.item.color('blue');
+  };
+
+  BlueCircleBuilder.prototype.get = function() {
+    return this.item;
   };
 
   // Abstract Factory
   var CircleFactory = function() {
     this.types = {};
     this.create = function(type) {
-      return new this.types[type]().create();
+      return new this.types[type]().get();
     };
 
     this.register = function(type, cls) {
-      if (cls.prototype.create) {
+      if (cls.prototype.init && cls.prototype.get) {
         this.types[type] = cls;
       }
     };
@@ -40,8 +68,8 @@
           _state = $('body'),
           _circleFactory = new CircleFactory();
 
-      _circleFactory.register('red', RedCircle);
-      _circleFactory.register('blue', BlueCircle);
+      _circleFactory.register('red', RedCircleBuilder);
+      _circleFactory.register('blue', BlueCircleBuilder);
 
       function _position(circle, left, top) {
         circle.css('left', left);
@@ -49,7 +77,7 @@
       }
 
       function create(left, top, type) {
-        var circle = _circleFactory.create(type).item;
+        var circle = _circleFactory.create(type).get();
         _position(circle, left, top);
 
         return circle;
